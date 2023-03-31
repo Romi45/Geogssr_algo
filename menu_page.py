@@ -12,9 +12,10 @@ class Geo_Guess():
     
     def __init__(self):
         self.racine = tk.Tk()
+        self.racine.geometry(f"{800}x{500}")
         self.racine.title("Match The Flag")
-        self.width = 600
-        self.height = 400
+        
+        self.background_image = PhotoImage(file = "name file.png")
         
         self.best_scores = []
         self.file_neighb_c = "list_neighb_countries.json"
@@ -25,6 +26,8 @@ class Geo_Guess():
        
         
     def create_widget(self, root):
+        
+        self.set_background = tk.Label(root, i = self.background_image)
         
         self.select = tk.Label(root, text="\nDifficulty")
         self.select.pack(anchor = tk.CENTER)
@@ -58,9 +61,9 @@ class Geo_Guess():
         self.quit.pack(side = tk.BOTTOM, fill = 'x' )
     
         
-    def make_dict(self):
-        with open(self.file_neighb_c, encoding='utf-8') as jsonfile:
-            self.dict_neighb_c = json.load(jsonfile)
+    #def make_dict(self):
+        #with open(self.file_neighb_c, encoding='utf-8') as jsonfile:
+            #self.dict_neighb_c = json.load(jsonfile)
     
     
     def close_window(self, event):
