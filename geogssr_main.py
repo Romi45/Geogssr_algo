@@ -28,7 +28,7 @@ class Geogssr():
         self.light_tile = "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
         self.dark_tile = "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
 
-        self.rules_text = 'description jeu'
+        self.rules_text = 'Welcome to geoguessr! \n\nIn this game, your goal is to click on the country corresponding to the flag appearing. To do so, use your mouse to navigate the map and locate the country (you can zoom in or out by scrolling the mouse).\n\nThere are three levels of difficulty, and you can select to play with or without islands (which are harder to locate). These setting are accesible by clicking on "Change difficulty" button of the main window. The 3 difficulty levels correspond to the amount of time you have to find each country: \n\n - 60s for the easiest\n - 30s for the medium \n - 10s for the hardest\n\nIf you are ever stuck, you can click on the hint button that will give you the neighbours of the country you are looking for.\nThe "Change theme" button also allows you to choose between a dark and light scheme.\n\nPress the button "Start Game" when you are ready !'
         self.data_neighbours = {}
         self.data = {}
         self.flag_labels = []
