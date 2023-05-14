@@ -24,6 +24,9 @@ class Geogssr():
         self.file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\countries.csv'
         self.flags_folder = "/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\Flags/Flags_png/"
         self.neighbours_file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\country_neighbours.json'
+        
+        self.light_tile = "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+        self.dark_tile = "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
 
         self.rules_text = 'description jeu'
         self.data_neighbours = {}
@@ -37,6 +40,8 @@ class Geogssr():
         self.country_is_displayed = False
         self.timer = True
         self.intro_done = False
+        self.islands = True
+        self.theme = True
         self.start_time = time.time()
         self.current_time = time.time()
         self.time_diff = datetime.timedelta(seconds = (self.current_time-self.start_time))
@@ -44,12 +49,17 @@ class Geogssr():
         self.bg_color = '#212227'
         self.fg_color = '#FFEF9F'
 
+        self.dark_theme = ['#212227','#FFEF9F']
+        self.light_theme = ['#394867','#F1F6F9']
+
         self.difficulty = tk.StringVar()
         self.difficulty.set('Easy : 60 seconds per country')
         self.score = tk.IntVar()
         self.score.set(0)
         self.current_country_text = tk.StringVar()
         self.current_country_text.set(self.current_country.upper())
+        self.islands_label = tk.StringVar()
+        self.islands_label.set('Islands : ON')
 
         self.number_plays = tk.IntVar()
         self.number_plays.set(0)
@@ -64,15 +74,14 @@ class Geogssr():
         #startup functions
         self.data =  self.load_data(self.file)
         self.data_neighbours = self.load_data_neighbours(self.neighbours_file)
-        print(self.data_neighbours)
         self.country_display('de')
         time.sleep(1)
         
-        #self.menu()
 
     def intro(self):
         self.intro_window = tk.Toplevel(self.root_tk, bg=self.bg_color)
         self.intro_window.grab_set()
+        
 
         self.intro_label = tk.Label(self.intro_window, text='Welcome to Geoguessr !', bg=self.bg_color, fg='white', font='Arial 20 bold')
         self.rules_textbox = tk.Text(self.intro_window, font = 'Arial 15', bg=self.bg_color, fg=self.fg_color)
@@ -85,7 +94,6 @@ class Geogssr():
 
 
     def create_widgets(self):
-
 
         #creating 2 frames to place items inside
         self.frame_left = tk.Frame(self.root_tk, width = 300, height = 700, background=self.bg_color)
@@ -115,29 +123,34 @@ class Geogssr():
         #country user is looking for
         self.current_country_display = tk.Label(self.frame_left, textvariable = self.current_country_text, font='Arial 15 bold', bg=self.bg_color, fg=self.fg_color,pady=20)
         self.current_country_display.pack(fill='x')
+        
 
         #hint button
         self.hint_button = tk.Button(self.frame_left, text ='Hint', bg=self.bg_color,fg='white', font='Arial 20 bold', padx = '50', command=self.hint)
         self.hint_button.pack()
 
-        #hint label
-        #self.label2 = tk.Label(self.frame_left, text ="This country's neighbors are : ", bg='#24262f', fg='white', pady=25, font='Arial 20 bold')
-        #self.label2.pack(fill='x')
 
+        #timer_label
         self.timer_label = tk.Label(self.frame_left, text=self.time_diff, font='Calibri 20 bold', bg = self.bg_color, fg=self.fg_color)
         self.timer_label.pack(fill='x')
+
 
         #hint textbox
         self.hint_textbox = tk.Text(self.frame_left, font = 'Arial 15 bold', bg=self.bg_color, fg=self.fg_color, height = 10)
         self.hint_textbox.pack()
+
         
         #number of plays label
-        self.number_plays_label = tk.Label(self.frame_left, textvariable=self.number_plays_display, bg = self.bg_color, fg=self.fg_color, font = 'Arial 30 bold',pady=50)
+        self.number_plays_label = tk.Label(self.frame_left, textvariable=self.number_plays_display, bg = self.bg_color, fg=self.fg_color, font = 'Arial 30 bold',pady=40)
         self.number_plays_label.pack()
 
         #select difficulty mode
         self.difficulty_change = tk.Button(self.frame_left, text = 'Change difficulty level', command=self.difficulty_toplevel, bg=self.bg_color, fg='white', font='Arial 15 bold')
         self.difficulty_change.pack()
+
+        #select theme button
+        self.select_theme = tk.Button(self.frame_left, text='Change Theme', font='Arial 15 bold',bg=self.bg_color, fg='white', command=self.update_theme)
+        self.select_theme.pack()
         
         #quit button
         self.quit_button_mainframe = tk.Button(self.frame_left, text='Quit', font='Arial 15 bold', bg=self.bg_color,fg='white',command=self.root_tk.destroy)
@@ -147,10 +160,10 @@ class Geogssr():
         self.intro()
         self.update_clock()
         
-        #timer label
 
 
     def difficulty_toplevel(self):
+
         self.pause_time = self.current_time
         self.timer = False
         self.difficulty_window = tk.Toplevel(self.root_tk, bg=self.bg_color)
@@ -158,11 +171,23 @@ class Geogssr():
         self.label3 = tk.Label(self.difficulty_window, text='Choose your difficulty level :', font = 'Arial 20 bold', bg=self.bg_color, fg=self.fg_color)
         self.difficulty_options = tk.OptionMenu(self.difficulty_window, self.difficulty, 'Easy : 60 seconds per country','Medium : 30 seconds per country','Hard : 10 seconds per country')
         self.confirm_button = tk.Button(self.difficulty_window, text='Confirm', bg=self.bg_color, fg='white', font='Arial 15 bold', command=self.close_difficulty_menu)
+        self.islands_button = tk.Button(self.difficulty_window, bg=self.bg_color, fg=self.fg_color, textvariable = self.islands_label, font='Arial 15 bold', command=self.change_islands_mode)
         self.label3.pack()
         self.difficulty_options.pack()
+        self.islands_button.pack()
         self.confirm_button.pack()
     
+    def change_islands_mode(self):
+        if self.islands:
+            self.islands = False
+            self.islands_label.set('Islands : OFF')
+        else:
+            self.islands = True
+            self.islands_label.set('Islands : ON')
+
+
     def close_difficulty_menu(self):
+
         self.current_time = time.time()
         self.time_diff = datetime.timedelta(seconds = int(self.current_time- self.pause_time))
         self.start_time = self.start_time + self.time_diff.seconds
@@ -170,7 +195,24 @@ class Geogssr():
         self.update_clock()
         self.difficulty_window.destroy()
         
-        
+    def update_theme(self):
+        if self.theme:
+            self.theme = False
+            self.bg_color = self.light_theme[0]
+            self.fg_color =self.light_theme[1]
+            tile_server = self.light_tile
+        else:
+            self.theme = True
+            self.bg_color = self.dark_theme[0]
+            self.fg_color = self.dark_theme[1]
+            tile_server = self.dark_tile
+        self.frame_left.configure(background=self.bg_color)
+        self.map_widget.set_tile_server(tile_server)
+        for i in self.frame_left.winfo_children():
+            try:
+                i.configure(bg=self.bg_color, fg=self.fg_color)
+            except:
+                print('cant do it')
 
     def update_clock(self):
         
@@ -196,7 +238,6 @@ class Geogssr():
                 self.current_country_text.set(self.current_country.upper())
                 self.country_display(new_flag)
                 self.hint_textbox.delete(1.0, tk.END)
-                print('True', new_flag)
         self.timer_label.after(1000, self.update_clock)
 
         
@@ -212,10 +253,8 @@ class Geogssr():
         none
         """
         location = locator.reverse((event[0], event[1]))
-        print(location.raw['address'])
         country_code = location.raw['address']['country_code'].upper()
         country = self.data[country_code]
-        print(country, self.current_country)
         if country == self.current_country:
             self.start_time = time.time() 
             self.score.set(self.score.get() + 1)
@@ -225,10 +264,6 @@ class Geogssr():
             self.current_country_text.set(self.current_country.upper())
             self.country_display(new_flag)
             self.hint_textbox.delete(1.0, tk.END)
-            print('True', new_flag)
-
-        
-
 
     #load csv file with country names/codes in a dictionnary
     def load_data(self, file):
@@ -238,10 +273,10 @@ class Geogssr():
                 for country, country_code in reader:
                     if country_code not in data:
                         data[country_code] = country
-
-            print(data)
             return data
-        
+    
+    
+    #load json file with countries' 2-letter code assigned to a list of the names of neighbouring countries
     def load_data_neighbours(self,file):
         jsondata= {}
         with open(file, 'r') as jsonfile:
@@ -253,8 +288,7 @@ class Geogssr():
                 tmp[i] = str_list
                 jsondata[i] = tmp[i]
         return jsondata
-
-
+    
 
     #defines the size of the label depending on size of the displayed flag and a max threshold
     def label_size(self, flag):
@@ -264,7 +298,6 @@ class Geogssr():
         if width > max_flag_width:
             return max_flag_width
         return width
-
 
     #picks a random flag
     def random_flag(self):
@@ -281,9 +314,15 @@ class Geogssr():
         countries = list(self.data.keys())
         self.number_plays.set(self.number_plays.get() + 1)
         self.number_plays_display.set(str(self.number_plays.get()) +'/10' )
+        new_flag = countries[number]
+        if not self.islands:
+                print(self.data_neighbours[new_flag.lower()])
+                print(len(self.data_neighbours[new_flag.lower()]))
+                while len(self.data_neighbours[new_flag.lower()]) == 0:
+                   new_flag = self.random_flag() 
         if self.number_plays.get() >= 10:
             self.end_of_game()
-        return countries[number]
+        return new_flag
 
 
     
@@ -310,6 +349,7 @@ class Geogssr():
         self.img_label.photo = self.img
         self.img_label.place(relx=0, rely=1.0, anchor='sw')
 
+
     def hint(self):
         self.hint_text = self.data_neighbours[self.current_country_code.lower()]
         if self.hint_text:
@@ -318,6 +358,7 @@ class Geogssr():
         else:
             self.hint_text = "Looks like this country's an island..."
             self.hint_textbox.insert(tk.END, self.hint_text)
+
 
     def end_of_game(self):
         """
@@ -343,7 +384,6 @@ class Geogssr():
         self.quit_button.pack()
 
         
-    
     def restart_game(self):
         """
         relaunches a new game, in easy mode by default
@@ -359,10 +399,10 @@ class Geogssr():
         self.endgame_window.destroy()
         self.score.set(0)
         self.number_plays.set(0)
+        self.number_plays_display.set(str(self.number_plays.get()) + '/10')
         self.difficulty.set('Easy : 60 seconds per country')
 
 
-    # create map widget
     
 
 
@@ -372,11 +412,6 @@ class Geogssr():
 
 if __name__ == '__main__':
     Geogssr_window = Geogssr()
-    #Geogssr_window.root_tk.wm_attributes('-transparentcolor', 'red')
     Geogssr_window.root_tk.mainloop()
 
 
-
-"""print(location.raw['address']['country'], location.raw['address']['country_code'])
-    engine.say(country)
-    engine.runAndWait()"""
