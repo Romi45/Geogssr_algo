@@ -199,9 +199,18 @@ class Geogssr():
                 print('True', new_flag)
         self.timer_label.after(1000, self.update_clock)
 
-
-    #handles a click on the map ==> checks if country is the right one, displays a new country if yes
+        
     def add_marker_event(self, event):
+        """
+        handles a click on the map, give the coordinates it corresponds to and prints the country it corresponds to for the player to see;
+        if the click is on the right country, moves on to the next one otherwise does nothing
+        
+        parameters:
+        event
+        ------
+        returns:
+        none
+        """
         location = locator.reverse((event[0], event[1]))
         print(location.raw['address'])
         country_code = location.raw['address']['country_code'].upper()
@@ -249,6 +258,7 @@ class Geogssr():
 
     #defines the size of the label depending on size of the displayed flag and a max threshold
     def label_size(self, flag):
+        
         max_flag_width = self.max_flag_width
         width = flag.width()
         if width > max_flag_width:
@@ -258,6 +268,15 @@ class Geogssr():
 
     #picks a random flag
     def random_flag(self):
+        """
+        picks a random country code that will be used to choose the next flag of the game randomly
+         
+        parameters:
+        none
+        ------
+        returns:
+        country_code(string): the two letter code for a countries name
+        """
         number = randint(0,len(self.data))
         countries = list(self.data.keys())
         self.number_plays.set(self.number_plays.get() + 1)
@@ -267,8 +286,17 @@ class Geogssr():
         return countries[number]
 
 
-    #displays new flag
-    def country_display(self, country_code):        
+    
+    def country_display(self, country_code):
+        """
+        displays the new flag corresponding to the country selected by random_flag
+         
+        parameters:
+        country_code(string): the two letter code for a countries name
+        ------
+        returns:
+        none
+        """
         country_code = country_code.lower()
         flag_path = self.flags_folder + country_code + ".png"
         self.img = tk.PhotoImage(file=flag_path)
@@ -292,6 +320,15 @@ class Geogssr():
             self.hint_textbox.insert(tk.END, self.hint_text)
 
     def end_of_game(self):
+        """
+        Is launched at the end of the game, recaps your score and ask you if you would like to play again.
+         
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         self.timer = False
         self.endgame_window = tk.Toplevel(self.root_tk, bg = self.bg_color)
         self.endgame_window.grab_set()
@@ -308,6 +345,15 @@ class Geogssr():
         
     
     def restart_game(self):
+        """
+        relaunches a new game, in easy mode by default
+         
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         self.timer = True
         self.start_time = time.time()
         self.endgame_window.destroy()
