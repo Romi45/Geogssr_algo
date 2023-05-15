@@ -15,7 +15,16 @@ locator = Nominatim(user_agent='myGeocoder')
 class Geogssr():
 
     def __init__(self):
-
+        """
+        initialises most of the attributes we will need for the game to take place;
+        more importantly starts the timer and use our start up functions
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         #tk window creation
         self.root_tk = tk.Tk()
         self.root_tk.geometry(f"{1500}x{700}")
@@ -68,7 +77,6 @@ class Geogssr():
         self.number_plays_display.set(str(self.number_plays.get()) +'/10' )
         self.create_widgets()
         
-        
        
 
         #startup functions
@@ -79,22 +87,40 @@ class Geogssr():
         
 
     def intro(self):
+        """
+        creates a page that welcomes the player and shows you the rule.
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         self.intro_window = tk.Toplevel(self.root_tk, bg=self.bg_color)
         self.intro_window.grab_set()
         
 
         self.intro_label = tk.Label(self.intro_window, text='Welcome to Geoguessr !', bg=self.bg_color, fg='white', font='Arial 20 bold')
         self.rules_textbox = tk.Text(self.intro_window, font = 'Arial 15', bg=self.bg_color, fg=self.fg_color)
-        self.strat_game = tk.Button(self.intro_window, text='Start game', font='Arial 20 bold', bg=self.bg_color, fg=self.fg_color, command=self.intro_window.destroy)
+        self.start_game = tk.Button(self.intro_window, text='Start game', font='Arial 20 bold', bg=self.bg_color, fg=self.fg_color, command=self.intro_window.destroy)
 
         self.intro_label.pack()
         self.rules_textbox.pack()
-        self.strat_game.pack()
+        self.start_game.pack()
         self.rules_textbox.insert(tk.END,self.rules_text)
 
 
     def create_widgets(self):
-
+        """
+        puts in place the map as well as the UI that we provide the player;
+        displaying thing such as their score, the flag of teh target country, etc...
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         #creating 2 frames to place items inside
         self.frame_left = tk.Frame(self.root_tk, width = 300, height = 700, background=self.bg_color)
         self.frame_left.grid(row = 0, column=0)
@@ -104,7 +130,7 @@ class Geogssr():
         self.frame_right.grid(row=0,column=1)
         self.frame_right.pack_propagate(False)
 
-         #create the map widget with tkintermapview and sets map
+        #create the map widget with tkintermapview and sets map
         self.map_widget = tkintermapview.TkinterMapView(self.frame_right, width=1200, height=700, corner_radius=10)
         self.map_widget.set_tile_server("https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png")
 
@@ -163,6 +189,16 @@ class Geogssr():
 
 
     def difficulty_toplevel(self):
+        """
+        pauses the timer and display a new window asking the player to choose a difficulty and if they want to play with islands or not;
+        easy gives them 60  seconds per country, medium 30 and hard only 10.
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
 
         self.pause_time = self.current_time
         self.timer = False
@@ -178,6 +214,15 @@ class Geogssr():
         self.confirm_button.pack()
     
     def change_islands_mode(self):
+        """
+        changes whether the player can have to guess island or not and adapts the label accordingly
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         if self.islands:
             self.islands = False
             self.islands_label.set('Islands : OFF')
@@ -187,6 +232,15 @@ class Geogssr():
 
 
     def close_difficulty_menu(self):
+        """
+        unpauses the game, updates the clock/timer to insure no issues happen and close the window to choose the difficulty
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
 
         self.current_time = time.time()
         self.time_diff = datetime.timedelta(seconds = int(self.current_time- self.pause_time))
@@ -196,6 +250,16 @@ class Geogssr():
         self.difficulty_window.destroy()
         
     def update_theme(self):
+        """
+        changes the theme color of the map, allowing to play in light or dark mode
+        
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
+        
         if self.theme:
             self.theme = False
             self.bg_color = self.light_theme[0]
@@ -215,7 +279,16 @@ class Geogssr():
                 print('cant do it')
 
     def update_clock(self):
+        """
+        Handles the timer of the game, and insures that if the time is up, to change the flag to be guessed
         
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
+
         if self.intro_done:
             if self.timer:
                 self.current_time = time.time()
@@ -265,8 +338,17 @@ class Geogssr():
             self.country_display(new_flag)
             self.hint_textbox.delete(1.0, tk.END)
 
-    #load csv file with country names/codes in a dictionnary
+    
     def load_data(self, file):
+        """
+        load the csv file with country names/codes in a dictionnary
+        
+        parameters:
+        file(.csv extension)
+        ------
+        returns:
+        data(dictionary) = links the countris 2-letter code (key) to the country's actual name (value)
+        """
             with open(file, newline = "") as csvfile:
                 reader = csv.reader(csvfile, delimiter = ",")
                 data = {}
@@ -276,8 +358,17 @@ class Geogssr():
             return data
     
     
-    #load json file with countries' 2-letter code assigned to a list of the names of neighbouring countries
+    
     def load_data_neighbours(self,file):
+        """
+        load json file with countries' 2-letter code assigned to a list of the names of the neighbouring countries
+        
+        parameters:
+        file(.json extension)
+        ------
+        returns:
+        jsondata(dictionary) = links a country (key) to a list of it's neighboring countries (item)
+        """
         jsondata= {}
         with open(file, 'r') as jsonfile:
             tmp = json.load(jsonfile)
@@ -292,7 +383,16 @@ class Geogssr():
 
     #defines the size of the label depending on size of the displayed flag and a max threshold
     def label_size(self, flag):
-        
+        """
+        adapts the size of the label flag depending on size of the displayed flag,
+        makes sure it's not oversized
+         
+        parameters:
+        flag(.png) =  image of a flag
+        ------
+        returns:
+        width(int) = the width with which we display the flag
+        """
         max_flag_width = self.max_flag_width
         width = flag.width()
         if width > max_flag_width:
@@ -302,7 +402,8 @@ class Geogssr():
     #picks a random flag
     def random_flag(self):
         """
-        picks a random country code that will be used to choose the next flag of the game randomly
+        picks a random country code that will be used to choose the next flag of the game randomly;
+        if the number of rounds exceeds 10, ends the game
          
         parameters:
         none
@@ -351,6 +452,16 @@ class Geogssr():
 
 
     def hint(self):
+        """
+        displays a hint for the player, in the form of the neighboring countries of the current target
+        if the list of neighboring countries is empty, we tell the player to look for an island
+         
+        parameters:
+        none
+        ------
+        returns:
+        none
+        """
         self.hint_text = self.data_neighbours[self.current_country_code.lower()]
         if self.hint_text:
             self.hint_text = f"{self.current_country}'s neighbors are : \n{self.hint_text}\n"
