@@ -311,6 +311,7 @@ class Geogssr():
         
         if self.time_diff.seconds >= self.difficulty_dic[self.difficulty.get()]:
                 self.start_time = time.time()
+                self.number_plays.set(self.number_plays.get() + 1)
                 new_flag = self.random_flag()
                 self.current_country_code = new_flag
                 self.current_country = self.data[new_flag]
@@ -332,14 +333,15 @@ class Geogssr():
         none
         """
         location = locator.reverse((event[0], event[1]))
-        country_code = location.raw['address']['country_code'].upper()
         try:
+            country_code = location.raw['address']['country_code'].upper()
             country = self.data[country_code]
         except:
             country = None
         if country == self.current_country:
             self.start_time = time.time() 
             self.score.set(self.score.get() + 1)
+            self.number_plays.set(self.number_plays.get() + 1)
             new_flag = self.random_flag()
             self.current_country_code = new_flag
             self.current_country = self.data[new_flag]
@@ -422,7 +424,6 @@ class Geogssr():
         """
         number = randint(0,len(self.data))
         countries = list(self.data.keys())
-        self.number_plays.set(self.number_plays.get() + 1)
         self.number_plays_display.set(str(self.number_plays.get()) +'/10' )
         new_flag = countries[number]
         if not self.islands:
@@ -431,6 +432,7 @@ class Geogssr():
         if self.number_plays.get() >= 10:
             self.timer = False
             self.end_of_game()
+        
         return new_flag
 
 
