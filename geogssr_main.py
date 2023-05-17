@@ -28,7 +28,6 @@ class Geogssr():
         """
         #tk window creation
         self.cwd = Path(__file__).parent
-        print(self.cwd)
         self.root_tk = tk.Tk()
         self.root_tk.geometry(f"{1500}x{700}")
         self.root_tk.title("map_view_example.py")
@@ -283,7 +282,7 @@ class Geogssr():
             try:
                 i.configure(bg=self.bg_color, fg=self.fg_color)
             except:
-                print('cant do it')
+                print('Error changing theme')
 
     def update_clock(self):
         """
@@ -334,7 +333,10 @@ class Geogssr():
         """
         location = locator.reverse((event[0], event[1]))
         country_code = location.raw['address']['country_code'].upper()
-        country = self.data[country_code]
+        try:
+            country = self.data[country_code]
+        except:
+            country = None
         if country == self.current_country:
             self.start_time = time.time() 
             self.score.set(self.score.get() + 1)
@@ -424,8 +426,6 @@ class Geogssr():
         self.number_plays_display.set(str(self.number_plays.get()) +'/10' )
         new_flag = countries[number]
         if not self.islands:
-                print(self.data_neighbours[new_flag.lower()])
-                print(len(self.data_neighbours[new_flag.lower()]))
                 while len(self.data_neighbours[new_flag.lower()]) == 0:
                    new_flag = self.random_flag() 
         if self.number_plays.get() >= 10:
