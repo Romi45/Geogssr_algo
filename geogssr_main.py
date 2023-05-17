@@ -6,6 +6,7 @@ from random import randint
 import json
 import time 
 import datetime
+from pathlib import Path
 locator = Nominatim(user_agent='myGeocoder')
 
 
@@ -17,13 +18,19 @@ class Geogssr():
     def __init__(self):
 
         #tk window creation
+        self.cwd = Path(__file__).parent
+        print(self.cwd)
         self.root_tk = tk.Tk()
         self.root_tk.geometry(f"{1500}x{700}")
         self.root_tk.title("map_view_example.py")
         
-        self.file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\countries.csv'
-        self.flags_folder = "/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\Flags/Flags_png/"
-        self.neighbours_file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\country_neighbours.json'
+        self.file = (self.cwd / 'countries.csv').resolve()
+        self.flags_folder = (self.cwd / "Flags/Flags_png/").resolve()
+        self.neighbours_file = (self.cwd / 'country_neighbours.json').resolve()
+
+        #self.file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\countries.csv'
+        #self.flags_folder = "/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\Flags/Flags_png/"
+        #self.neighbours_file = '/Users\jeand\OneDrive\Documentos\Programming\Python\Insa\country_neighbours.json'
         
         self.light_tile = "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
         self.dark_tile = "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png"
@@ -337,7 +344,7 @@ class Geogssr():
         none
         """
         country_code = country_code.lower()
-        flag_path = self.flags_folder + country_code + ".png"
+        flag_path = (self.flags_folder / (country_code + ".png")).resolve()
         self.img = tk.PhotoImage(file=flag_path)
         self.img = self.img.subsample(2,2)
         self.img_label = tk.Label(self.frame_right, image=self.img,height=100,bg='lightblue', border = None,width = self.label_size(self.img)-5)
