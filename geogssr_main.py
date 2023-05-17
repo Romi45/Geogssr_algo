@@ -356,13 +356,13 @@ class Geogssr():
         returns:
         data(dictionary) = links the countris 2-letter code (key) to the country's actual name (value)
         """
-            with open(file, newline = "") as csvfile:
-                reader = csv.reader(csvfile, delimiter = ",")
-                data = {}
-                for country, country_code in reader:
-                    if country_code not in data:
-                        data[country_code] = country
-            return data
+        with open(file, newline = "") as csvfile:
+            reader = csv.reader(csvfile, delimiter = ",")
+            data = {}
+            for country, country_code in reader:
+                if country_code not in data:
+                    data[country_code] = country
+        return data
     
     
     
