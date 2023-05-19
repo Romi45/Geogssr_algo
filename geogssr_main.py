@@ -88,7 +88,12 @@ class Geogssr():
         #startup functions
         self.data =  self.load_data(self.file)
         self.data_neighbours = self.load_data_neighbours(self.neighbours_file)
-        self.country_display('de')
+        self.map_widget.set_zoom(0)
+        new_flag = self.random_flag()
+        self.current_country_code = new_flag
+        self.current_country = self.data[new_flag]
+        self.current_country_text.set(self.current_country.upper())
+        self.country_display(new_flag)
         time.sleep(1)
         
 
